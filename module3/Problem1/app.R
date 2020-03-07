@@ -15,9 +15,10 @@ national = raw %>%
     mutate(State = "United States", Crude.Rate = round(100000*(Deaths/Population),digits = 1)) %>%
     select(ICD.Chapter, State, Year, Deaths, Population, Crude.Rate)
 
-#combine national and state death rates
+#combine national and state death rates and only fetch 2010 data
 df = bind_rows(national,raw)
-
+df = subset(df,Year == 2010)
+national = subset(national, Year == 2010)
 
 #create ui
 ui <- fluidPage(
