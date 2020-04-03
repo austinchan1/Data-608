@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+    <title>Homework 5 - Intro to Javascript</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+
+<h1>Homework 5 - Intro to Javascript</h1>
+
+<h3>Part 1:</h3>
+
+<h4>String Reverse</h4>
+
+<script>
+
+function reverse(str) {
+
+    //split string into individual letters and put letters into an array
+    //reverse order of array
+    //join letters back together into a string
+    var reversed_string = str.split("").reverse().join("");
+
+    return reversed_string
+
+}
+
+function reverse_calc(){
+
+    //fetches target element 
+    var t = document.getElementById("target_reverse");
+    
+    //calls reverse function and adds html
+    t.innerHTML = reverse(document.getElementById('reverse_string_function').value);
+}
+
+//Adds instructions
+document.write('<p>Enter a string below:</p>');
+
+</script>
+
+
+<p>
+<form>
+    <input id="reverse_string_function" type="text" size="30">
+    <input type="button" value="Reverse" onClick="reverse_calc();">
+</form>
+</p>
+
+<div id="target_reverse"></div>
+
+
+<h4>First 20 Multiples</h4>
+
+<script>
+
+function first20(num) {
+
+    //converts input to integer
+    var true_num = parseInt(num)
+
+    //create length 20 array with specified number
+    var empty_array = Array(20).fill(true_num);
+    var multiples = [];
+    var output = new Array(5);
+
+    //loop through rows and creates empty arrays to store columns for each row
+    for (var i = 0; i < output.length; i++) {
+
+        output[i] = new Array(4)
+
+    }
+
+    //calculate cumulative sum to find multiples
+    empty_array.reduce(function(first,second,index) { return multiples[index] = first + second; },0)
+
+    //nested loop that reassigns 1d array into 2d array
+    for (var i = 0; i < 5; i++) {
+
+        for(var j = 0; j < 4; j++) {
+
+            output[i][j] = multiples[(i*4) + j]
+        }
+    }
+
+    return output
+
+}
+
+
+
+function first20_calc(){
+
+    //finds document element
+    var t = document.getElementById("target_first20");
+    
+    //removes any existing html at the target_first20 element
+    t.innerHTML = ""
+
+    //creates array of first 20 multiples
+    first20_table = first20(document.getElementById('first20_function').value);
+
+    var tr = d3.select(t) // go to element
+            .append("table") //create table
+            .selectAll("tr")  //choose element to create
+            .data(first20_table) //allocate tr elements with data 
+            .enter() //puts data into table rows
+            .append("tr");// creates tr divisions for each array row
+
+        
+        var td = tr.selectAll("td") //choose element to create
+            .data(function (d) { //allocate table division elements with data
+                console.log(d);
+                return d;
+            })
+            .enter()    // puts data into table divisions
+            .append("td") // creates table divisions for each column for each array row
+            .text(function (d) {
+                console.log(d);
+                return d; // add value of each inner array as a text in <td>
+            });
+
+        
+}
+
+</script>
+
+
+<p>
+<form>
+    <input id="first20_function" type="number" size="30">
+    <input type="button" value="Calculate" onClick="first20_calc();">
+</form>
+</p>
+
+<div id="target_first20"></div>
+
+
+<h3>Part 2:</h3>
+
+<h4>Load Presidents</h4>
+
+
+<div id="target_presidents"></div>
+
+<script>
+
+//go to target_presidents division
+var t = document.getElementById("target_presidents");
+
+var tabulate = function (data,t) {
+  
+  var table = d3.select(t) // go to html element
+    .append("table") // create table
+    var tableHead = table.append('thead') // create header
+    var tableBody = table.append('tbody') // create body
+    tableHead.append('tr') // create table row for header
+      .selectAll('th') //choose header to create
+      .data(data.columns) // allocate space for columns
+      .enter() // enter data into columns
+      .append('th') //create table headers
+      .text(function (d) { //insert data as text into headers
+        console.log(d)
+        return d
+      })
+      var rows = tableBody.selectAll('tr') //choose table rows to create
+        .data(data) //allocate space for rows
+        .enter() //enter data into rows
+        .append('tr') //create table rows
+      var cells = rows.selectAll('td') //choose table divisions to create
+        .data(function (row) { //allocate space for table divisions
+          return data.columns.map(function (column) { //map data as a dictionary
+            return { column: column, value: row[column]}
+          })
+        })
+        .enter() //enter data into table divisions
+        .append('td') //create table divisions
+        .text(function (d) { //insert data as text into table cells
+          console.log(d)
+          return d.value
+        })
+        return table;
+}
+
+d3.csv('./data/presidents.csv').then(function(data) { //read csv and tabulate into html table
+  tabulate(data,t)
+})
+
+</script>
+
+
+<h4>Search Presidents</h4>
+
+
+<p>
+<form>
+    <input id="president_search_function" type="text" size="30" onkeyup="president_search_calc()">
+</form>
+</p>
+
+<div id="target_president_search"></div>
+
+<script>
+    
+
+//go to target_president_search element
+var president_search_id = document.getElementById("target_president_search");
+
+//read csv and tabulate into html table
+d3.csv('./data/presidents.csv').then(function(data) {
+  tabulate(data,president_search_id)
+})
+
+
+function president_search_calc() {
+  
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  
+  input = document.getElementById("president_search_function"); //specify input
+  filter = input.value.toUpperCase(); //converts input to all uppercase
+  table = document.getElementById("target_president_search"); //locate table
+  tr = table.getElementsByTagName("tr"); //finds table rows
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+
+    //iterate through rows to fetch table divisions
+    td = tr[i].getElementsByTagName("td")[0];
+
+    //if table division is found, choose only rows that match text
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+
+      //if a specific text element is found remove rows that do not match
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+
+        //empty display
+        tr[i].style.display = "";
+      } else {
+
+        //when nothing matches, display nothing
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+
+</script>
+
+
+
+</body>
+</html>
